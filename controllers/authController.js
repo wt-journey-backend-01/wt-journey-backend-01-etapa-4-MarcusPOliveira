@@ -148,9 +148,7 @@ class AuthController {
       // Deletar usuário
       await usuariosRepository.delete(userId);
 
-      res.status(200).json({
-        message: 'Usuário deletado com sucesso'
-      });
+      res.status(204).send();
 
     } catch (error) {
       console.error('Erro ao deletar usuário:', error);

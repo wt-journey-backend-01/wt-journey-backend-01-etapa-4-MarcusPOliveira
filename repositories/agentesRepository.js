@@ -1,7 +1,19 @@
 const db = require('../db/db')
 
-const findAll = async () => {
-  return await db('agentes').select('*')
+const findAll = async (filters = {}) => {
+  const query = db('agentes').select('*')
+
+  if (filters.cargo) {
+    query.where('cargo', 'ilike', filters.cargo)
+  }
+
+  if (filters.sort) {
+    const sortKey = filters.sort.replace('-', '')
+    const direction = filters.sort.startsWith('-') ? 'desc' : 'asc'
+    query.orderBy(sortKey, direction)
+  }
+
+  return await query
 }
 
 const findById = async (id) => {

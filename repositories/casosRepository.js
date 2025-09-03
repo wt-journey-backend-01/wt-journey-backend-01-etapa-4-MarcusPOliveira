@@ -1,7 +1,24 @@
 const db = require('../db/db')
 
-const findAll = async () => {
-  return await db('casos').select('*')
+const findAll = async (filters = {}) => {
+  const query = db('casos').select('*')
+
+  if (filters.agente_id) {
+    query.where('agente_id', filters.agente_id)
+  }
+
+  if (filters.status) {
+    query.where('status', filters.status)
+  }
+
+  if (filters.q) {
+    query.where(function () {
+      this.where('titulo', 'ilike', `%${filters.q}%`)
+          .orWhere('descricao', 'ilike', `%${filters.q}%`)
+    })
+  }
+
+  return await query
 }
 
 const findById = async (id) => {
