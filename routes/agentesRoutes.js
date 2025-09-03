@@ -37,7 +37,7 @@ const authMiddleware = require('../middlewares/authMiddleware')
  *       401:
  *         description: Token inválido ou expirado
  */
-router.get('/agentes', authMiddleware, agentesController.getAll)
+router.get('/', authMiddleware, agentesController.getAll)
 
 /**
  * @swagger
@@ -58,7 +58,7 @@ router.get('/agentes', authMiddleware, agentesController.getAll)
  *       404:
  *         description: Agente não encontrado
  */
-router.get('/agentes/:id', authMiddleware, agentesController.getById)
+router.get('/:id', authMiddleware, agentesController.getById)
 
 /**
  * @swagger
@@ -87,7 +87,7 @@ router.get('/agentes/:id', authMiddleware, agentesController.getById)
  *       400:
  *         description: Dados inválidos
  */
-router.post('/agentes', authMiddleware, agentesController.create)
+router.post('/', authMiddleware, agentesController.create)
 
 /**
  * @swagger
@@ -125,7 +125,7 @@ router.post('/agentes', authMiddleware, agentesController.create)
  *       404:
  *         description: Agente não encontrado
  */
-router.put('/agentes/:id', authMiddleware, agentesController.put)
+router.put('/:id', authMiddleware, agentesController.put)
 
 /**
  * @swagger
@@ -160,7 +160,7 @@ router.put('/agentes/:id', authMiddleware, agentesController.put)
  *       404:
  *         description: Agente não encontrado
  */
-router.patch('/agentes/:id', authMiddleware, agentesController.patch)
+router.patch('/:id', authMiddleware, agentesController.patch)
 
 /**
  * @swagger
@@ -180,7 +180,7 @@ router.patch('/agentes/:id', authMiddleware, agentesController.patch)
  *       404:
  *         description: Agente não encontrado
  */
-router.delete('/agentes/:id', authMiddleware, agentesController.remove)
+router.delete('/:id', authMiddleware, agentesController.remove)
 
 /**
  * @swagger
@@ -219,6 +219,6 @@ router.delete('/agentes/:id', authMiddleware, agentesController.remove)
  *       404:
  *         description: Agente não encontrado
  */
-router.get('/agentes/:id/casos', authMiddleware, agentesController.getCasos)
+router.get('/:id/casos', authMiddleware, agentesController.getCasos)
 
 module.exports = router
