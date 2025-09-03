@@ -43,7 +43,7 @@ const getById = async (req, res) => {
   const idNum = parseInt(id)
   
   if (isNaN(idNum)) {
-    return res.status(400).json({ message: 'ID inválido' })
+    return res.status(404).json({ message: 'Agente não encontrado' })
   }
   
   const agente = await agentesRepository.findById(idNum)
@@ -81,7 +81,7 @@ const put = async (req, res, next) => {
     const idNum = parseInt(id)
     
     if (isNaN(idNum)) {
-      return res.status(400).json({ message: 'ID inválido' })
+      return res.status(404).json({ message: 'Agente não encontrado' })
     }
     
     const parsed = agenteSchemaComId.safeParse({ ...req.body, id: idNum })
@@ -121,7 +121,7 @@ const patch = async (req, res) => {
     const idNum = parseInt(req.params.id)
     
     if (isNaN(idNum)) {
-      return res.status(400).json({ message: 'ID inválido' })
+      return res.status(404).json({ message: 'Agente não encontrado' })
     }
     
     const partialSchema = agenteSchema.partial()
@@ -152,7 +152,7 @@ const remove = async (req, res) => {
   const idNum = parseInt(req.params.id)
   
   if (isNaN(idNum)) {
-    return res.status(400).json({ message: 'ID inválido' })
+    return res.status(404).json({ message: 'Agente não encontrado' })
   }
   
   const deleted = await agentesRepository.remove(idNum)
@@ -167,7 +167,7 @@ const getCasos = async (req, res) => {
   const agentId = parseInt(id)
   
   if (isNaN(agentId)) {
-    return res.status(400).json({ message: 'ID inválido' })
+    return res.status(404).json({ message: 'Agente não encontrado' })
   }
 
   // Verify agent exists

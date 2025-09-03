@@ -50,7 +50,7 @@ const getById = async (req, res) => {
   const idNum = parseInt(req.params.id)
   
   if (isNaN(idNum)) {
-    return res.status(400).json({ message: 'ID inválido' })
+    return res.status(404).json({ message: 'Caso não encontrado' })
   }
   
   const caso = await casosRepository.findById(idNum)
@@ -94,7 +94,7 @@ const put = async (req, res, next) => {
     const idNum = parseInt(id)
     
     if (isNaN(idNum)) {
-      return res.status(400).json({ message: 'ID inválido' })
+      return res.status(404).json({ message: 'Caso não encontrado' })
     }
     
     const parsed = casoSchemaComId.safeParse({ ...req.body, id: idNum })
@@ -141,7 +141,7 @@ const patch = async (req, res) => {
   const idNum = parseInt(req.params.id)
   
   if (isNaN(idNum)) {
-    return res.status(400).json({ message: 'ID inválido' })
+    return res.status(404).json({ message: 'Caso não encontrado' })
   }
   
   const partialSchema = casoSchemaComId.partial()
@@ -182,7 +182,7 @@ const remove = async (req, res) => {
   const idNum = parseInt(req.params.id)
   
   if (isNaN(idNum)) {
-    return res.status(400).json({ message: 'ID inválido' })
+    return res.status(404).json({ message: 'Caso não encontrado' })
   }
   
   const sucesso = await casosRepository.remove(idNum)

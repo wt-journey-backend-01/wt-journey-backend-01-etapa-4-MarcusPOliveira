@@ -5,7 +5,9 @@ const agenteSchema = z.object({
   dataDeIncorporacao: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
     message: 'Data de incorporação deve estar no formato AAAA-MM-DD',
   }),
-  cargo: z.string().min(1, "Campo 'cargo' é obrigatório"),
+  cargo: z.enum(['delegado', 'inspetor'], {
+    message: "Cargo deve ser 'delegado' ou 'inspetor'",
+  }),
 })
 
 const agenteSchemaComId = agenteSchema.extend({
