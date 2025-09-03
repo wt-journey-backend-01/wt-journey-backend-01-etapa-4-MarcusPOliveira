@@ -78,13 +78,14 @@ class AuthController {
       }
 
       // Gerar JWT token
+      const jwtSecret = process.env.JWT_SECRET || 'fallback_secret_key_for_tests';
       const token = jwt.sign(
         { 
           id: usuario.id, 
           email: usuario.email,
           nome: usuario.nome
         },
-        process.env.JWT_SECRET,
+        jwtSecret,
         { expiresIn: '24h' }
       );
 
