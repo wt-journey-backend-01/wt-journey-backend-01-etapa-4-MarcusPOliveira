@@ -41,10 +41,10 @@ class AuthController {
       if (error.name === 'ZodError') {
         return res.status(400).json({
           error: 'Dados inválidos',
-          details: error.errors.map(err => ({
-            field: err.path.join('.'),
+          details: error.errors ? error.errors.map(err => ({
+            field: err.path ? err.path.join('.') : 'unknown',
             message: err.message
-          }))
+          })) : [{ message: error.message }]
         });
       }
       
@@ -96,10 +96,10 @@ class AuthController {
       if (error.name === 'ZodError') {
         return res.status(400).json({
           error: 'Dados inválidos',
-          details: error.errors.map(err => ({
-            field: err.path.join('.'),
+          details: error.errors ? error.errors.map(err => ({
+            field: err.path ? err.path.join('.') : 'unknown',
             message: err.message
-          }))
+          })) : [{ message: error.message }]
         });
       }
 

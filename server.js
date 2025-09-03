@@ -5,7 +5,6 @@ const PORT = 3000
 const agentesRoutes = require('./routes/agentesRoutes')
 const casosRoutes = require('./routes/casosRoutes')
 const authRoutes = require('./routes/authRoutes')
-const usersRoutes = require('./routes/usersRoutes')
 const usuariosRoutes = require('./routes/usuariosRoutes')
 const errorHandler = require('./utils/errorHandler')
 
@@ -16,7 +15,6 @@ app.use(express.json())
 setupSwagger(app)
 
 app.use('/auth', authRoutes)
-app.use('/users', usersRoutes)
 app.use('/usuarios', usuariosRoutes)
 app.use(agentesRoutes)
 app.use(casosRoutes)

@@ -38,4 +38,29 @@ const router = express.Router();
  */
 router.get('/me', authMiddleware, authController.getProfile);
 
+/**
+ * @swagger
+ * /usuarios/{id}:
+ *   delete:
+ *     summary: Deletar usuário
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do usuário
+ *     responses:
+ *       200:
+ *         description: Usuário deletado com sucesso
+ *       401:
+ *         description: Token inválido ou expirado
+ *       404:
+ *         description: Usuário não encontrado
+ */
+router.delete('/:id', authMiddleware, authController.deleteUser);
+
 module.exports = router;
