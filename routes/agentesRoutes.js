@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 const agentesController = require('../controllers/agentesController')
+const authMiddleware = require('../middlewares/authMiddleware')
 
 /**
  * @swagger
@@ -16,6 +17,8 @@ const agentesController = require('../controllers/agentesController')
  *   get:
  *     summary: Lista todos os agentes
  *     tags: [Agentes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: cargo
@@ -31,8 +34,10 @@ const agentesController = require('../controllers/agentesController')
  *     responses:
  *       200:
  *         description: Lista de agentes retornada com sucesso
+ *       401:
+ *         description: Token inválido ou expirado
  */
-router.get('/agentes', agentesController.getAll)
+router.get('/agentes', authMiddleware, agentesController.getAll)
 
 /**
  * @swagger
@@ -53,7 +58,7 @@ router.get('/agentes', agentesController.getAll)
  *       404:
  *         description: Agente não encontrado
  */
-router.get('/agentes/:id', agentesController.getById)
+router.get('/agentes/:id', authMiddleware, agentesController.getById)
 
 /**
  * @swagger
@@ -82,7 +87,7 @@ router.get('/agentes/:id', agentesController.getById)
  *       400:
  *         description: Dados inválidos
  */
-router.post('/agentes', agentesController.create)
+router.post('/agentes', authMiddleware, agentesController.create)
 
 /**
  * @swagger
@@ -120,7 +125,7 @@ router.post('/agentes', agentesController.create)
  *       404:
  *         description: Agente não encontrado
  */
-router.put('/agentes/:id', agentesController.put)
+router.put('/agentes/:id', authMiddleware, agentesController.put)
 
 /**
  * @swagger
@@ -155,7 +160,7 @@ router.put('/agentes/:id', agentesController.put)
  *       404:
  *         description: Agente não encontrado
  */
-router.patch('/agentes/:id', agentesController.patch)
+router.patch('/agentes/:id', authMiddleware, agentesController.patch)
 
 /**
  * @swagger
@@ -175,7 +180,7 @@ router.patch('/agentes/:id', agentesController.patch)
  *       404:
  *         description: Agente não encontrado
  */
-router.delete('/agentes/:id', agentesController.remove)
+router.delete('/agentes/:id', authMiddleware, agentesController.remove)
 
 /**
  * @swagger
@@ -214,6 +219,6 @@ router.delete('/agentes/:id', agentesController.remove)
  *       404:
  *         description: Agente não encontrado
  */
-router.get('/agentes/:id/casos', agentesController.getCasos)
+router.get('/agentes/:id/casos', authMiddleware, agentesController.getCasos)
 
 module.exports = router

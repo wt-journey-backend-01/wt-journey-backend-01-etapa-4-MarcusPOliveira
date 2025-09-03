@@ -1,6 +1,6 @@
 # Instruções de Configuração - API Departamento de Polícia
 
-Este documento fornece instruções claras para configurar e executar a API de gerenciamento de agentes e casos policiais com PostgreSQL.
+Este documento fornece instruções claras para configurar e executar a API de gerenciamento de agentes e casos policiais com PostgreSQL e autenticação JWT (Etapa 4).
 
 ## 📋 Pré-requisitos
 
@@ -30,9 +30,12 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=policia_db
 NODE_ENV=development
+JWT_SECRET=your_super_secure_jwt_secret_key_change_in_production_2024
 ```
 
-**⚠️ IMPORTANTE**: Use exatamente estes valores para compatibilidade com os testes.
+**⚠️ IMPORTANTE**: 
+- Use exatamente estes valores para compatibilidade com os testes
+- **NUNCA** commite o `JWT_SECRET` em produção - use um valor seguro e aleatório
 
 ## 🐘 Configuração do Banco de Dados PostgreSQL
 
@@ -61,8 +64,9 @@ npx knex migrate:latest
 ```
 
 **Tabelas criadas:**
-- `agentes`: id, nome, dataDeIncorporacao, cargo
-- `casos`: id, titulo, descricao, status, agente_id (foreign key)
+- `agentes`: id, nome, dataDeIncorporacao, cargo, created_at, updated_at
+- `casos`: id, titulo, descricao, status, agente_id (foreign key), created_at, updated_at
+- `usuarios`: id, nome, email (unique), senha (hashed), created_at, updated_at
 
 ### 3. Rodar Seeds (Dados Iniciais)
 
@@ -74,6 +78,7 @@ npx knex seed:run
 **Dados inseridos:**
 - 2 agentes (Maria Santos - delegado, Pedro Oliveira - inspetor) via `agentes.js`
 - 2 casos (Furto de veículo, Vandalismo em escola) via `casos.js`
+- 2 usuários (Admin Sistema, João Silva Santos) com senhas hasheadas via `usuarios.js`
 
 ## 🏃‍♂️ Executando a Aplicação
 
@@ -89,28 +94,50 @@ npm start
 
 A API estará disponível em: **http://localhost:3000**
 
-## 📚 Documentação da API
+## 🔐 Sistema de Autenticação (Etapa 4)
 
-Acesse a documentação Swagger em: **http://localhost:3000/api-docs**
+### Como Funciona
+A API agora utiliza **autenticação JWT** para proteger os endpoints. Todos os endpoints de agentes e casos requerem um token válido.
 
-### Endpoints Principais
+### Fluxo de Autenticação
+1. **Registrar usuário** → `POST /auth/register`
+2. **Fazer login** → `POST /auth/login` (recebe access_token)
+3. **Usar token** → Incluir `Authorization: Bearer <token>` nos headers
+4. **Logout** → `POST /auth/logout`
+
+### Endpoints de Autenticação
+
+**Autenticação (Acesso público):**
+- `POST /auth/register` - Registrar novo usuário
+- `POST /auth/login` - Fazer login (retorna JWT token)
+- `POST /auth/logout` - Fazer logout
+
+**Gerenciamento de usuários (Requer autenticação):**
+- `DELETE /users/:id` - Deletar usuário
+- `GET /usuarios/me` - **[BONUS]** Obter perfil do usuário autenticado
+
+### Endpoints Protegidos (Requer JWT Token)
 
 **Agentes:**
-- `GET /agentes` - Listar agentes
-- `GET /agentes/:id` - Buscar agente por ID
-- `POST /agentes` - Criar agente
-- `PUT /agentes/:id` - Atualizar agente completo
-- `PATCH /agentes/:id` - Atualizar agente parcial
-- `DELETE /agentes/:id` - Remover agente
-- `GET /agentes/:id/casos` - **[BONUS]** Listar casos de um agente específico
+- `GET /agentes` - Listar agentes 🔒
+- `GET /agentes/:id` - Buscar agente por ID 🔒
+- `POST /agentes` - Criar agente 🔒
+- `PUT /agentes/:id` - Atualizar agente completo 🔒
+- `PATCH /agentes/:id` - Atualizar agente parcial 🔒
+- `DELETE /agentes/:id` - Remover agente 🔒
+- `GET /agentes/:id/casos` - **[BONUS]** Listar casos de um agente específico 🔒
 
 **Casos:**
-- `GET /casos` - Listar casos
-- `GET /casos/:id` - Buscar caso por ID
-- `POST /casos` - Criar caso
-- `PUT /casos/:id` - Atualizar caso completo
-- `PATCH /casos/:id` - Atualizar caso parcial
-- `DELETE /casos/:id` - Remover caso
+- `GET /casos` - Listar casos 🔒
+- `GET /casos/:id` - Buscar caso por ID 🔒
+- `POST /casos` - Criar caso 🔒
+- `PUT /casos/:id` - Atualizar caso completo 🔒
+- `PATCH /casos/:id` - Atualizar caso parcial 🔒
+- `DELETE /casos/:id` - Remover caso 🔒
+
+## 📚 Documentação da API
+
+Acesse a documentação Swagger em: **http://localhost:3000/docs/**
 
 ## 🔧 Comandos Úteis
 
@@ -149,35 +176,111 @@ docker exec -it policia_db_container psql -U postgres -d policia_db
 # \q - sair
 ```
 
-## 🧪 Testando a API
+## 🧪 Testando a API com Autenticação
 
-### Exemplo: Criar um agente
+### 1. Registrar um novo usuário
 ```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "João Silva",
+    "email": "joao@policia.gov.br",
+    "senha": "MinhaSenh@123!"
+  }'
+```
+
+**Requisitos da senha:**
+- Mínimo 8 caracteres
+- Pelo menos 1 letra minúscula
+- Pelo menos 1 letra maiúscula  
+- Pelo menos 1 número
+- Pelo menos 1 caractere especial (@$!%*?&)
+
+### 2. Fazer login e obter token JWT
+```bash
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "joao@policia.gov.br",
+    "senha": "MinhaSenh@123!"
+  }'
+```
+
+**Resposta esperada (Status 200):**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### 3. Usar o token para acessar endpoints protegidos
+```bash
+# Armazenar o token (substitua pelo token real)
+TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+# Criar um agente (agora requer autenticação)
 curl -X POST http://localhost:3000/agentes \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
   -d '{
     "nome": "João Silva",
     "dataDeIncorporacao": "2020-03-15",
     "cargo": "delegado"
   }'
-```
 
-### Exemplo: Criar um caso
-```bash
+# Criar um caso (agora requer autenticação)
 curl -X POST http://localhost:3000/casos \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
   -d '{
     "titulo": "Roubo de banco",
     "descricao": "Assalto ao banco central",
     "status": "aberto",
     "agente_id": 1
   }'
+
+# Listar casos de um agente (agora requer autenticação)
+curl -X GET http://localhost:3000/agentes/1/casos \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
-### Exemplo: Listar casos de um agente (BONUS)
+### 4. Obter perfil do usuário (Bonus)
 ```bash
-# Listar todos os casos do agente ID 1
-curl http://localhost:3000/agentes/1/casos
+curl -X GET http://localhost:3000/usuarios/me \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### 5. Fazer logout
+```bash
+curl -X POST http://localhost:3000/auth/logout \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Testando Erros de Autenticação
+
+**Sem token (deve retornar 401):**
+```bash
+curl -X GET http://localhost:3000/agentes
+# Retorna: {"error":"Token de acesso não fornecido"}
+```
+
+**Token inválido (deve retornar 401):**
+```bash
+curl -X GET http://localhost:3000/agentes \
+  -H "Authorization: Bearer token_invalido"
+# Retorna: {"error":"Token inválido"}
+```
+
+**Email já em uso (deve retornar 400):**
+```bash
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "Outro Usuário",
+    "email": "joao@policia.gov.br",
+    "senha": "OutraSenh@456!"
+  }'
+# Retorna: {"error":"Email já está em uso"}
 ```
 
 ## ❗ Solução de Problemas
@@ -201,8 +304,28 @@ curl http://localhost:3000/agentes/1/casos
 
 ## 📝 Notas Importantes
 
+### Banco de Dados
 - **IDs são auto-incrementais**: Não envie ID no corpo das requisições POST
 - **Foreign Keys**: Casos devem referenciar agentes existentes
 - **Formato de data**: Use YYYY-MM-DD para dataDeIncorporacao
 - **Status válidos**: "aberto" ou "solucionado"
 - **Cargos válidos**: "delegado" ou "inspetor"
+
+### Autenticação e Segurança
+- **JWT Token**: Válido por 24 horas após login
+- **Header obrigatório**: `Authorization: Bearer <token>` em endpoints protegidos
+- **Senhas**: Armazenadas com hash bcrypt (salt 10)
+- **Validação de email**: Deve ser único no sistema
+- **Status codes importantes**:
+  - `200`: Login bem-sucedido
+  - `400`: Email já em uso ou dados inválidos
+  - `401`: Token inválido/expirado ou credenciais inválidas
+
+### Usuarios Padrão (Seeds)
+```
+Email: admin@policia.gov.br
+Senha: AdminPass123!
+
+Email: joao.santos@policia.gov.br  
+Senha: UserPass456@
+```

@@ -6,9 +6,24 @@ const options = {
     openapi: '3.0.0',
     info: {
       title: 'API do Departamento de Polícia',
-      version: '1.0.0',
-      description: 'Documentação da API que gerencia casos e agentes policiais',
+      version: '2.0.0',
+      description: 'Documentação da API que gerencia casos e agentes policiais com autenticação JWT (Etapa 4)',
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Token JWT para autenticação. Formato: Bearer <token>'
+        }
+      }
+    },
+    security: [
+      {
+        bearerAuth: []
+      }
+    ]
   },
   apis: ['./routes/*.js'],
 }
